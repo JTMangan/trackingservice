@@ -1,26 +1,29 @@
 package edu.iu.c322.trackingservice.controller;
 
-import edu.iu.c322.invoicingservice.model.Invoice;
-import edu.iu.c322.invoicingservice.repository.InvoiceRepository;
+import edu.iu.c322.trackingservice.model.Order;
 import edu.iu.c322.trackingservice.model.Tracking;
-import edu.iu.c322.trackingservice.repository.TrackingRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/trackings")
 public class TrackingController {
-    private TrackingRepository repository;
+    private final WebClient orderService;
 
-    public TrackingController(TrackingRepository repository){
-        this.repository = repository;
+    public TrackingController(WebClient.Builder webClientBuilder){
+        orderService = webClientBuilder.baseUrl("http://localhost:8080").build();
     }
+
     @GetMapping("/{orderId}/{itemId}")
-    public Tracking findByOrderIdAndItemId(@PathVariable int orderId, @PathVariable int itemId ){
-        return repository.findByOrderIdAndItemId(orderId, itemId);
+    public Mono<Order> findByOrderIdAndItemId(@PathVariable int orderId, int itemId){
+        return orderService.get().uri("/orders/order/{orderId}/{itemId}", orderId, itemId)
+                .retrieve()
+                .bodyToMono(Order.class);
     }
 
-    @PutMapping("/{id}")
-    public void update(@PathVariable int id, @RequestBody String status){
-        repository.update(id, status);
-    }
+//    @PutMapping("/{id}")
+//    public void update(@PathVariable int id, @RequestBody String status){
+//        repository.update(id, status);
+//    }
 }

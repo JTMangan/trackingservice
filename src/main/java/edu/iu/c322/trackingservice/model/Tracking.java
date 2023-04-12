@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.Objects;
 
 public class Tracking {
-    @NotEmpty
     String status;
 
     String date;
